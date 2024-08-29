@@ -1,6 +1,9 @@
 #include "CohesionRule.h"
 #include "../gameobjects/Boid.h"
 
+/// <summary>
+/// Implemeted
+/// </summary>
 Vector2f CohesionRule::computeForce(const std::vector<Boid*>& neighborhood, Boid* boid) {
   Vector2f cohesionForce = Vector2f::zero();
 

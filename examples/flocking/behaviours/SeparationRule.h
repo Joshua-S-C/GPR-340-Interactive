@@ -7,6 +7,7 @@
 class SeparationRule : public FlockingRule {
 private:
   float desiredMinimalDistance = 10;
+  float maxSeparationForce = 100;    /// Clamp for separation force, in case boids go near 0. There's also another catch for this to clamp the actual distance before division
 
 public:
   explicit SeparationRule(World* pWorld, float desiredSeparation = 20., float weight = 1., bool isEnabled = true)
