@@ -8,33 +8,36 @@
 /// </summary>
 Vector2f SeparationRule::computeForce(const std::vector<Boid*>& neighborhood, Boid* boid) {
     // Try to avoid boids too close
+    // done: implement a force that if neighbor(s) enter the radius, moves the boid away from it/them
+    // done: find and apply force only on the closest mates
+
+    // Default to 0
+    if (neighborhood.empty())
+        return Vector2f::zero();
+
     Vector2f separatingForce = Vector2f::zero();
+    Vector2f position = boid->transform.position;
 
     float desiredDistance = desiredMinimalDistance;
     float desiredMaxSeparationForce = maxSeparationForce;
 
-    // done: implement a force that if neighbor(s) enter the radius, moves the boid away from it/them
+    int countCloseFlockmates = 0;
 
-    if (!neighborhood.empty()) {
-        Vector2f position = boid->transform.position;
-        int countCloseFlockmates = 0;
-        // done: find and apply force only on the closest mates
+    for (Boid* neighbor : neighborhood) {
+        Vector2f neighborToBoid = (position - neighbor->getPosition());
+        float n2bMagnitude = neighborToBoid.getMagnitude();
 
-        for (Boid* neighbor : neighborhood) {
-            Vector2f neighborToBoid = (position - neighbor->getPosition());
-            float n2bMagnitude = neighborToBoid.getMagnitude();
+        // Ignore if too far away
+        if (n2bMagnitude > desiredDistance) continue;
 
-            if (n2bMagnitude > desiredDistance) continue;
-
-            // Clamping distance so no dividing by 0
-            if (n2bMagnitude == 0) {
-                n2bMagnitude == .000001;
-            }
-
-            countCloseFlockmates++;
-
-            separatingForce += neighborToBoid.normalized() / n2bMagnitude;
+        // Clamping distance so no dividing by 0
+        if (n2bMagnitude == 0) {
+            n2bMagnitude == .000001;
         }
+
+        countCloseFlockmates++;
+
+        separatingForce += neighborToBoid.normalized() / n2bMagnitude;
     }
 
     // Clamping separation force
