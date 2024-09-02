@@ -6,12 +6,6 @@
 Vector2f MouseInfluenceRule::computeForce(const std::vector<Boid*>& neighborhood, Boid* boid) {
   ImGui::SetCurrentContext(world->engine->window->imGuiContext);
       ImGuiIO& io = ImGui::GetIO();
-
-    // done: use this
-    // done: change this
-    // done: change this
-    // done: change this
-
       if (ImGui::IsMousePosValid() && io.MouseDown[0]) {
           Vector2f mousePos(io.MousePos.x, io.MousePos.y); 
           Vector2f displacement = mousePos - boid->getPosition(); 
