@@ -45,7 +45,7 @@ Vector2f SeparationRule::computeForce(const std::vector<Boid*>& neighborhood, Bo
         separatingForce = Vector2f::normalized(separatingForce) * desiredMaxSeparationForce;
     }
 
-    return separatingForce;
+    return separatingForce.normalized();
 }
 
 bool SeparationRule::drawImguiRuleExtra() {

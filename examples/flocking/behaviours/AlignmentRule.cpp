@@ -17,7 +17,9 @@ Vector2f AlignmentRule::computeForce(const std::vector<Boid*>& neighborhood, Boi
   for (Boid* neighbor : neighborhood)
     averageVelocity += neighbor->getVelocity();
 
-  averageVelocity /= neighborhood.size();
+  averageVelocity += boid->getVelocity();
+
+  averageVelocity /= neighborhood.size() + 1;
 
   return Vector2f::normalized(averageVelocity);
 }
