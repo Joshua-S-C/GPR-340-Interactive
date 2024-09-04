@@ -6,6 +6,7 @@
 class BoundedAreaRule : public FlockingRule {
 private:
   int desiredDistance;
+  bool useDistanceFromBorder;
 
 public:
   BoundedAreaRule(World* pWorld, int distanceFromBorder_, float weight = 1., bool isEnabled = true)
