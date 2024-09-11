@@ -28,8 +28,9 @@ Vector2f BoundedAreaRule::computeForce(const std::vector<Boid*>& neighborhood, B
         return force;
     }
 
-    // A different way to do something similar. Although it doesn't work well lol
+    // A different way to do something similar
     // Basically a harder barrier by directly changing velocity
+    // Works okay for keeping things in the barrier, doesn't work well when they are already far outside (from shrinking it)
     Vector2f newVel = boid->getVelocity();
 
     // Horizontal

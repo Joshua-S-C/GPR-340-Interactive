@@ -34,7 +34,7 @@ Vector2f SeparationRule::computeForce(const std::vector<Boid*>& neighborhood, Bo
         separatingForce += neighborToBoid.normalized() / n2bMagnitude;
     }
 
-    // Clamping separation force. Ma be redundant due to clamping distance
+    // Clamping separation force. May be redundant due to clamping distance
     if (separatingForce.getMagnitude() > desiredMaxSeparationForce)
         separatingForce = Vector2f::normalized(separatingForce) * desiredMaxSeparationForce;
 
