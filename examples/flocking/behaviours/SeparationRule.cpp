@@ -5,10 +5,9 @@
 
 /// <summary>
 /// Implemented. Clamps distance of boids and max force (max force via UI). Only one of those is needed though.
+/// Try to avoid boids too close
 /// </summary>
 Vector2f SeparationRule::computeForce(const std::vector<Boid*>& neighborhood, Boid* boid) {
-    // Try to avoid boids too close
-    
     // Default to 0
     if (neighborhood.empty())
         return Vector2f::zero();
@@ -27,9 +26,8 @@ Vector2f SeparationRule::computeForce(const std::vector<Boid*>& neighborhood, Bo
         if (n2bMagnitude > desiredDistance) continue;
 
         // Clamping distance so no dividing by 0
-        if (n2bMagnitude == 0) {
+        if (n2bMagnitude == 0)
             n2bMagnitude == .000001;
-        }
 
         separatingForce += neighborToBoid.normalized() / n2bMagnitude;
     }

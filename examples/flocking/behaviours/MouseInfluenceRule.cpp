@@ -12,9 +12,8 @@ Vector2f MouseInfluenceRule::computeForce(const std::vector<Boid*>& neighborhood
           float distance = displacement.getMagnitude(); 
  
           // Clamping distance so no dividing by 0
-          if (distance == 0) {
+          if (distance == 0)
             distance == .000001;
-          }
 
           // The force is inversely proportional to distance
           Vector2f force = displacement.normalized() / distance; 
