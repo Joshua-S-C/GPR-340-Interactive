@@ -3,6 +3,7 @@
 //
 
 #include "HexagonGameOfLife.h"
+
 void HexagonGameOfLife::Step(World& world) {
     Point2D point = {0, 0};
 
@@ -13,20 +14,19 @@ void HexagonGameOfLife::Step(World& world) {
             int neighbors = CountNeighbors(world, point);
             bool alive = world.Get(point);
 
-            //Dead Cell
+            // Dead Cell
             if (!alive) {
                 if (neighbors == 2)
                     world.SetNext(point, true);
                 else
                     world.SetNext(point, false);
-            } else {
-                // Live Cell
+            } else { 
+            // Live Cell
                 if (neighbors == 2)
                     world.SetNext(point, true);
                 else
                     world.SetNext(point, false);
             }
-
         }
     }
 
@@ -37,7 +37,7 @@ void HexagonGameOfLife::Step(World& world) {
 int HexagonGameOfLife::CountNeighbors(World& world, Point2D point) { 
 	int neighbors = 0;
 
-    if (point.x % 2 == 0) {
+    if (point.y % 2 == 0) {
         // Up Left
         neighbors += world.Get(point + point.UP + point.LEFT);
 
@@ -51,7 +51,7 @@ int HexagonGameOfLife::CountNeighbors(World& world, Point2D point) {
         neighbors += world.Get(point + point.DOWN);
     }
 
-    if (point.x % 2 == 1) {
+    if (point.y % 2 == 1) {
 	    // Up Left
 	    neighbors += world.Get(point + point.UP);
 
