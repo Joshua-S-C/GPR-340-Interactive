@@ -2,8 +2,9 @@
 #include "Random.h"
 #include "RecursiveBacktrackerExample.h"
 #include <climits>
+
+// todo: implement this
 bool RecursiveBacktrackerExample::Step(World* w) {
-  // todo: implement this
 
     Point2D p;
 
@@ -25,28 +26,61 @@ bool RecursiveBacktrackerExample::Step(World* w) {
         // Check that it's not off the world border
         ) {
 
+        // Mark as visited
+        w->SetNodeColor(p, Color::Red); 
+
         // Randomly select neighbor
         int rando = randNums[randNumIndex];
         randNumIndex++;
         rando %= visitables.size();
         Point2D neighbor = visitables[rando];
 
+        // Check if it's on the stack basically. This no work
+        while (w->GetNodeColor(neighbor) == Color::Red) {
+            int rando = randNums[randNumIndex];
+            randNumIndex++;
+            rando %= visitables.size();
+            Point2D neighbor = visitables[rando];
+        }
+
         // Add to stack
         stack.push_back(neighbor);
 
-        // Break wall between current and chosen neighbor // Using the SetNorth/South/Etc
-        Node neighborNode = w->GetNode(neighbor);
+        // Break wall between current and chosen neighbor 
+        // Using the SetNorth/South/Etc
+        Node nNode = w->GetNode(neighbor);
 
         // Find out which direction it is!!!
-        w->SetNode(neighbor, );
+        Point2D dir = neighbor - p;
+        Node pNode = w->GetNode(p);
+
+        // There has to be a better way :(
+        if (dir == Point2D::UP) {
+            pNode.SetNorth(false);
+            nNode.SetSouth(false);
+        } else if (dir == Point2D::DOWN) {
+            pNode.SetSouth(false);
+            nNode.SetNorth(false);
+        } else if (dir == Point2D::LEFT) {
+            pNode.SetWest(false);
+            nNode.SetEast(false);
+        } else if (dir == Point2D::RIGHT) {
+            pNode.SetEast(false);
+            nNode.SetWest(false);
+        }
+
+
+        w->SetNode(p, pNode);
+        w->SetNode(p + dir, nNode);
+
 
 
         return true;
-    } else {
-        stack.pop_back();
-    
-        return false;
     }
+
+    // Remove top cell from the stack, backtracking
+    stack.pop_back();
+    return false;
 
 }
 
