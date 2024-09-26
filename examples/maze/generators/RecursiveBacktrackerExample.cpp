@@ -5,27 +5,25 @@
 
 // todo: implement this
 bool RecursiveBacktrackerExample::Step(World* w) {
-
     Point2D p;
 
-    // Default
+    // Starting
     if (stack.empty()) {
         //p = randomStartPoint(w);
         p = {0, 0};
+
+        // The End
+        if (w->GetNodeColor(p) == Color::Black) return false;
+
         stack.push_back(p);
     } else {
         p = stack.back();
     }
 
-    // Check neighbors to visit
+    // Check neighbors to visit. Excludes Points off the world
     std::vector<Point2D> visitables = getVisitables(w, p);
 
-    // Check valid neighbor not in stack
-    if (!stack.empty() &&
-        !visitables.empty()
-        // Check that it's not off the world border
-        ) {
-
+    if (!visitables.empty()) {
         // Mark as visited
         w->SetNodeColor(p, Color::Red); 
 
@@ -35,17 +33,9 @@ bool RecursiveBacktrackerExample::Step(World* w) {
         rando %= visitables.size();
         Point2D neighbor = visitables[rando];
 
-        // Check if it's on the stack basically. This no work
-        while (w->GetNodeColor(neighbor) == Color::Red) {
-            int rando = randNums[randNumIndex];
-            randNumIndex++;
-            rando %= visitables.size();
-            Point2D neighbor = visitables[rando];
-        }
-
         // Add to stack
         stack.push_back(neighbor);
-
+         
         // Break wall between current and chosen neighbor 
         // Using the SetNorth/South/Etc
         Node nNode = w->GetNode(neighbor);
@@ -70,18 +60,13 @@ bool RecursiveBacktrackerExample::Step(World* w) {
         }
 
 
-        w->SetNode(p, pNode);
-        w->SetNode(p + dir, nNode);
-
-
-
         return true;
     }
 
     // Remove top cell from the stack, backtracking
     stack.pop_back();
-    return false;
-
+    w->SetNodeColor(p, Color::Black);
+    return true;
 }
 
 void RecursiveBacktrackerExample::Clear(World* world) {
@@ -106,29 +91,47 @@ Point2D RecursiveBacktrackerExample::randomStartPoint(World* world) {
   return {INT_MAX, INT_MAX};
 }
 
+/// <summary>
+/// Implemented
+/// </summary>
+/// <returns>Vector of valid points. Points that are off the World are not valid</returns>
 std::vector<Point2D> RecursiveBacktrackerExample::getVisitables(World* w, const Point2D& p) {
   auto sideOver2 = w->GetSize() / 2;
   std::vector<Point2D> visitables;
 
-  // todo: implement this
-
-  // World only stores walls. 
-  // GetNorth/South/etc gets the walls
+  // World only stores walls. GetNorth/South/etc gets the walls
   // If you want to check if it is visited, get the color
   // Up, Right, Down, Left
+
   /*Gray*/
 
-  if (w->GetNodeColor(p + p.UP) == Color::DarkGray) 
+  if (w->GetNodeColor(p + p.UP) == Color::DarkGray && pointInWorld(p + p.UP, sideOver2)) 
       visitables.push_back(p + p.UP);
 
-  if (w->GetNodeColor(p + p.RIGHT) == Color::DarkGray) 
-      visitables.push_back(p.RIGHT);
+  if (w->GetNodeColor(p + p.RIGHT) == Color::DarkGray && pointInWorld(p + p.UP, sideOver2)) 
+      visitables.push_back(p + p.RIGHT);
 
-  if (w->GetNodeColor(p + p.DOWN) == Color::DarkGray) 
-      visitables.push_back(p.DOWN);
+  if (w->GetNodeColor(p + p.DOWN) == Color::DarkGray && pointInWorld(p + p.UP, sideOver2)) 
+      visitables.push_back(p + p.DOWN);
 
-  if (w->GetNodeColor(p + p.LEFT) == Color::DarkGray) 
-      visitables.push_back(p.LEFT);
+  if (w->GetNodeColor(p + p.LEFT) == Color::DarkGray && pointInWorld(p + p.UP, sideOver2)) 
+      visitables.push_back(p + p.LEFT);
 
   return visitables;
+}
+
+/// <summary>
+/// Added
+/// </summary>
+/// <param name="p">Point to be evaluated</param>
+/// <param name="worldSizeOver2">w->worldSize()/2</param>
+/// <returns>True if the point fits in the World bounds based on size</returns>
+bool RecursiveBacktrackerExample::pointInWorld(Point2D p, int worldSizeOver2) {
+    if (p.x > worldSizeOver2) return false;
+    if (p.x < -worldSizeOver2) return false;
+
+    if (p.y > worldSizeOver2) return false;
+    if (p.y < -worldSizeOver2) return false;
+
+    return true;
 }
