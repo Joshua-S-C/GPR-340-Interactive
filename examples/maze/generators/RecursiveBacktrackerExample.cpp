@@ -37,6 +37,8 @@ bool RecursiveBacktrackerExample::Step(World* w) {
             prng.shift();
             rando = prng.a;
         } else {
+            if (randNumIndex > 99) randNumIndex = 0;
+
             rando = randNums[randNumIndex];
             randNumIndex++;
         } 
