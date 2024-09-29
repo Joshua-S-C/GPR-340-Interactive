@@ -29,22 +29,27 @@ bool RecursiveBacktrackerExample::Step(World* w) {
         // Mark as visited
         w->SetNodeColor(p, Color::Red); 
 
-        // Randomly select neighbor
+        // Select neighbor
         Point2D neighbor;
-        int rando;
 
-        if (useRandom) {
-            prng.shift();
-            rando = prng.a;
+        if (visitables.size() > 1) {
+            int rando;
+
+            if (useRandom) {
+                prng.shift();
+                rando = prng.a;
+            } else {
+                if (randNumIndex > 99) randNumIndex = 0;
+
+                rando = randNums[randNumIndex];
+                randNumIndex++;
+            }
+
+            rando %= visitables.size();
+            neighbor = visitables[rando];
         } else {
-            if (randNumIndex > 99) randNumIndex = 0;
-
-            rando = randNums[randNumIndex];
-            randNumIndex++;
-        } 
-
-        rando %= visitables.size();
-        neighbor = visitables[rando];
+          neighbor = visitables[0];
+        }
 
         // Add to stack
         stack.push_back(neighbor);
