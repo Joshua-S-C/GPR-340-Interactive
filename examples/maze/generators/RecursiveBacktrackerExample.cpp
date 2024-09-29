@@ -3,7 +3,9 @@
 #include "RecursiveBacktrackerExample.h"
 #include <climits>
 
-// todo: implement this
+/// <summary>
+/// Implemented
+/// </summary>
 bool RecursiveBacktrackerExample::Step(World* w) {
     Point2D p;
 
@@ -20,7 +22,7 @@ bool RecursiveBacktrackerExample::Step(World* w) {
         p = stack.back();
     }
 
-    // Check neighbors to visit. Excludes Points off the world
+    // Check neighbors to visit
     std::vector<Point2D> visitables = getVisitables(w, p);
 
     if (!visitables.empty()) {
@@ -28,23 +30,31 @@ bool RecursiveBacktrackerExample::Step(World* w) {
         w->SetNodeColor(p, Color::Red); 
 
         // Randomly select neighbor
-        int rando = randNums[randNumIndex];
-        randNumIndex++;
+        Point2D neighbor;
+        int rando;
+
+        if (useRandom) {
+            prng.shift();
+            rando = prng.a;
+        } else {
+            rando = randNums[randNumIndex];
+            randNumIndex++;
+        } 
+
         rando %= visitables.size();
-        Point2D neighbor = visitables[rando];
+        neighbor = visitables[rando];
 
         // Add to stack
         stack.push_back(neighbor);
          
-        // Break wall between current and chosen neighbor 
-        // Using the SetNorth/South/Etc
+        // Break wall between current and chosen neighbor Using the SetNorth/South/Etc
         Node nNode = w->GetNode(neighbor);
 
-        // Find out which direction it is!!!
+        // Find out which direction it is
         Point2D dir = neighbor - p;
         Node pNode = w->GetNode(p);
 
-        // There has to be a better way :(
+        // There HAS to be a better way :(
         if (dir == Point2D::UP) {
             pNode.SetNorth(false);
             nNode.SetSouth(false);
@@ -59,11 +69,14 @@ bool RecursiveBacktrackerExample::Step(World* w) {
             nNode.SetWest(false);
         }
 
+        // Set walls
+        w->SetNode(neighbor, nNode);
+        w->SetNode(p, pNode);
 
-        return true;
+         return true;
     }
 
-    // Remove top cell from the stack, backtracking
+    // If no neighbors: Remove top cell from the stack, backtracking
     stack.pop_back();
     w->SetNodeColor(p, Color::Black);
     return true;
@@ -96,30 +109,28 @@ Point2D RecursiveBacktrackerExample::randomStartPoint(World* world) {
 /// </summary>
 /// <returns>Vector of valid points. Points that are off the World are not valid</returns>
 std::vector<Point2D> RecursiveBacktrackerExample::getVisitables(World* w, const Point2D& p) {
-  auto sideOver2 = w->GetSize() / 2;
-  std::vector<Point2D> visitables;
+    // World only stores walls. GetNorth/South/etc gets the walls
+    // If you want to check if it is visited, get the color
+    // Order: Up, Right, Down, Left
+  
+    auto sideOver2 = w->GetSize() / 2;
+    std::vector<Point2D> visitables;
 
-  // World only stores walls. GetNorth/South/etc gets the walls
-  // If you want to check if it is visited, get the color
-  // Up, Right, Down, Left
+    /*Gray = Not Visisted*/
 
-  /*Gray*/
+    if (pointInWorld(p + p.UP, sideOver2) && w->GetNodeColor(p + p.UP) == Color::DarkGray)
+        visitables.push_back(p + p.UP);
 
-  if (pointInWorld(p + p.UP, sideOver2) && w->GetNodeColor(p + p.UP) == Color::DarkGray) {
-    visitables.size();  
-      visitables.push_back(p + p.UP);
-  }
+    if (pointInWorld(p + p.RIGHT, sideOver2) && w->GetNodeColor(p + p.RIGHT) == Color::DarkGray) 
+        visitables.push_back(p + p.RIGHT);
 
-  if (pointInWorld(p + p.RIGHT, sideOver2) && w->GetNodeColor(p + p.RIGHT) == Color::DarkGray) 
-      visitables.push_back(p + p.RIGHT);
+    if (pointInWorld(p + p.DOWN, sideOver2) && w->GetNodeColor(p + p.DOWN) == Color::DarkGray) 
+        visitables.push_back(p + p.DOWN);
 
-  if (pointInWorld(p + p.DOWN, sideOver2) && w->GetNodeColor(p + p.DOWN) == Color::DarkGray) 
-      visitables.push_back(p + p.DOWN);
+    if (pointInWorld(p + p.LEFT, sideOver2) && w->GetNodeColor(p + p.LEFT) == Color::DarkGray) 
+        visitables.push_back(p + p.LEFT);
 
-  if (pointInWorld(p + p.LEFT, sideOver2) && w->GetNodeColor(p + p.LEFT) == Color::DarkGray) 
-      visitables.push_back(p + p.LEFT);
-
-  return visitables;
+    return visitables;
 }
 
 /// <summary>
