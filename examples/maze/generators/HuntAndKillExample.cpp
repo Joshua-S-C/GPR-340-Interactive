@@ -2,6 +2,10 @@
 #include "../World.h"
 #include "Random.h"
 #include <climits>
+
+/// <summary>
+/// Implemented
+/// </summary>
 bool HuntAndKillExample::Step(World* w) {
   Point2D p;
 
@@ -13,7 +17,7 @@ bool HuntAndKillExample::Step(World* w) {
     // The End
     if (w->GetNodeColor(p) == Color::Black) return false;
 
-    //stack.push_back(p);
+    stack.push_back(p);
   } else {
     p = stack.back();
   }
@@ -21,10 +25,11 @@ bool HuntAndKillExample::Step(World* w) {
   // Check neighbors to visit
   std::vector<Point2D> visitables = getVisitables(w, p);
 
-  if (!visitables.empty()) {
     // Mark as visited
     w->SetNodeColor(p, Color::Black);
 
+    // Visit neighbors, Same as DFS
+  if (!visitables.empty()) {
     // Select neighbor
     Point2D neighbor;
 
@@ -48,7 +53,7 @@ bool HuntAndKillExample::Step(World* w) {
     }
 
     // Add to stack
-    //stack.push_back(neighbor);
+    stack.push_back(neighbor);
 
     // Break wall between current and chosen neighbor Using the SetNorth/South/Etc
     Node nNode = w->GetNode(neighbor);
@@ -82,17 +87,17 @@ bool HuntAndKillExample::Step(World* w) {
   // No neighbors: Walk / Scan for first unvisited cell with a visisted neighbor
   std::vector<Point2D> neighbors;
 
-  for (int i = 0; i < w->GetSize()/2; i ++)
-    for (int j = 0; j < w->GetSize() / 2; j++) {
+  for (int i = -(w->GetSize() / 2); i < w->GetSize() / 2; i++)
+    for (int j = -(w->GetSize() / 2); j < w->GetSize() / 2; j++) {
       p.x = j;
       p.y = i;
 
       if (w->GetNodeColor(p) == Color::DarkGray) {
-        neighbors = getVisitedNeighbors(w*, p);
+        neighbors = getVisitedNeighbors(w, p);
 
         if (neighbors.size() != 0) {
             // Break walls
-            Point2D dir = neighbors.back();
+            Point2D dir = neighbors.front();
             Node pNode = w->GetNode(p);
             Node nNode = w->GetNode(p + dir);
 
@@ -109,11 +114,18 @@ bool HuntAndKillExample::Step(World* w) {
                 pNode.SetEast(false);
                 nNode.SetWest(false);
             }
+            
 
+            w->SetNode(p+ dir, nNode);
+            w->SetNode(p, pNode);
+
+            w->SetNodeColor(p, Color::Black);
+            
             // Add Point to stack to start from there next
             stack.push_back(p);
+            
+            return true;
         }
-        return true;
       }
     }
 
@@ -168,7 +180,8 @@ std::vector<Point2D> HuntAndKillExample::getVisitedNeighbors(World* w, const Poi
   std::vector<Point2D> neighbors;
 
   for (int i = 0; i < 3; i++) {
-    if (pointInWorld(p + deltas[i], sideOver2) && w->GetNodeColor(p + deltas[i]) == Color::Black) 
+    if (pointInWorld(p + deltas[i], sideOver2) && 
+        (w->GetNodeColor(p + deltas[i]) == Color::Red || w->GetNodeColor(p + deltas[i]) == Color::Black)) 
       neighbors.push_back(deltas[i]);
   }
 

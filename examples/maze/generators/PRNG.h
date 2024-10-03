@@ -17,7 +17,7 @@ struct Generator {
   // Clamps numbers to this range. Use -1 as Max to ignore clamping
   int min = 0, max = -1;
 
-  uint16_t a;  // Value
+  uint16_t a = time(nullptr);  // Value
 
   /// <summary>
   /// Seeds value to time
