@@ -12,6 +12,8 @@ public:
   virtual Point2D Move(World*) = 0;
 
   std::vector<Point2D> generatePath(World* w);
+
+  std::vector<Point2D> getVisitableNeightbors(World* w, Point2D current, const unordered_set<Point2D>* frontierSet);
 };
 
 #endif  // AGENT_H
