@@ -11,8 +11,10 @@ bool RecursiveBacktrackerExample::Step(World* w) {
 
     // Starting
     if (stack.empty()) {
-        //p = randomStartPoint(w);
-        p = {0, 0};
+        if (randStartPoint)
+            p = randomStartPoint(w);
+        else
+            p = {0, 0};
 
         // The End
         if (w->GetNodeColor(p) == Color::Black) return false;
@@ -29,14 +31,13 @@ bool RecursiveBacktrackerExample::Step(World* w) {
         // Mark as visited
         w->SetNodeColor(p, Color::Red); 
 
-        // Select neighbor
+        // Select neighbor & add to stack
         Point2D neighbor;
         if (visitables.size() > 1)
           neighbor = visitables[getRandomIndex() % visitables.size()];
         else
           neighbor = visitables[0];
 
-        // Add to stack
         stack.push_back(neighbor);
          
         // Break wall between current and chosen neighbor Using the SetNorth/South/Etc
@@ -46,7 +47,7 @@ bool RecursiveBacktrackerExample::Step(World* w) {
         Point2D dir = neighbor - p;
         Node pNode = w->GetNode(p);
 
-        // There HAS to be a better way :(
+        // There HAS to be a better way :( but they''renot enums
         if (dir == Point2D::UP) {
             pNode.SetNorth(false);
             nNode.SetSouth(false);
@@ -65,7 +66,7 @@ bool RecursiveBacktrackerExample::Step(World* w) {
         w->SetNode(neighbor, nNode);
         w->SetNode(p, pNode);
 
-         return true;
+        return true;
     }
 
     // If no neighbors: Remove top cell from the stack, backtracking
@@ -87,13 +88,8 @@ void RecursiveBacktrackerExample::Clear(World* world) {
 }
 
 Point2D RecursiveBacktrackerExample::randomStartPoint(World* world) {
-  auto sideOver2 = world->GetSize() / 2;
-
-  // todo: change this if you want
-  for (int y = -sideOver2; y <= sideOver2; y++)
-    for (int x = -sideOver2; x <= sideOver2; x++)
-      if (!visited[y][x]) return {x, y};
-  return {INT_MAX, INT_MAX};
+    auto sideOver2 = world->GetSize() / 2;
+    return {getRandomIndex() % sideOver2, getRandomIndex() % sideOver2};
 }
 
 /// <summary>
@@ -108,7 +104,7 @@ std::vector<Point2D> RecursiveBacktrackerExample::getVisitables(World* w, const 
     auto sideOver2 = w->GetSize() / 2;
     std::vector<Point2D> visitables;
 
-    /*Gray = Not Visisted*/
+    /*DarkGray = Not Visisted*/
 
     if (pointInWorld(p + p.UP, sideOver2) && w->GetNodeColor(p + p.UP) == Color::DarkGray)
         visitables.push_back(p + p.UP);
@@ -123,20 +119,4 @@ std::vector<Point2D> RecursiveBacktrackerExample::getVisitables(World* w, const 
         visitables.push_back(p + p.LEFT);
 
     return visitables;
-}
-
-/// <summary>
-/// Added
-/// </summary>
-/// <param name="p">Point to be evaluated</param>
-/// <param name="worldSizeOver2">w->worldSize()/2</param>
-/// <returns>True if the point fits in the World bounds based on size</returns>
-bool RecursiveBacktrackerExample::pointInWorld(Point2D p, int worldSizeOver2) {
-    if (p.x > worldSizeOver2) return false;
-    if (p.x < -worldSizeOver2) return false;
-
-    if (p.y > worldSizeOver2) return false;
-    if (p.y < -worldSizeOver2) return false;
-
-    return true;
 }
