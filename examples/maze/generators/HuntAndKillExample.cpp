@@ -120,8 +120,7 @@ bool HuntAndKillExample::Step(World* w) {
         }
     }
 
-  // The End also
-  return false;
+  return true;
 }
 
 void HuntAndKillExample::Clear(World* world) {
