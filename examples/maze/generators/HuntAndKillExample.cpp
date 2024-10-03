@@ -3,7 +3,121 @@
 #include "Random.h"
 #include <climits>
 bool HuntAndKillExample::Step(World* w) {
-  // todo: code this
+  Point2D p;
+
+  // Starting
+  if (stack.empty()) {
+    // p = randomStartPoint(w);
+    p = {0, 0};
+
+    // The End
+    if (w->GetNodeColor(p) == Color::Black) return false;
+
+    //stack.push_back(p);
+  } else {
+    p = stack.back();
+  }
+
+  // Check neighbors to visit
+  std::vector<Point2D> visitables = getVisitables(w, p);
+
+  if (!visitables.empty()) {
+    // Mark as visited
+    w->SetNodeColor(p, Color::Black);
+
+    // Select neighbor
+    Point2D neighbor;
+
+    if (visitables.size() > 1) {
+      int rando;
+
+      if (useRandom) {
+        prng.shift();
+        rando = prng.a;
+      } else {
+        if (randNumIndex > 99) randNumIndex = 0;
+
+        rando = randNums[randNumIndex];
+        randNumIndex++;
+      }
+
+      rando %= visitables.size();
+      neighbor = visitables[rando];
+    } else {
+      neighbor = visitables[0];
+    }
+
+    // Add to stack
+    //stack.push_back(neighbor);
+
+    // Break wall between current and chosen neighbor Using the SetNorth/South/Etc
+    Node nNode = w->GetNode(neighbor);
+
+    // Find out which direction it is
+    Point2D dir = neighbor - p;
+    Node pNode = w->GetNode(p);
+
+    // There HAS to be a better way :(
+    if (dir == Point2D::UP) {
+      pNode.SetNorth(false);
+      nNode.SetSouth(false);
+    } else if (dir == Point2D::DOWN) {
+      pNode.SetSouth(false);
+      nNode.SetNorth(false);
+    } else if (dir == Point2D::LEFT) {
+      pNode.SetWest(false);
+      nNode.SetEast(false);
+    } else if (dir == Point2D::RIGHT) {
+      pNode.SetEast(false);
+      nNode.SetWest(false);
+    }
+
+    // Set walls
+    w->SetNode(neighbor, nNode);
+    w->SetNode(p, pNode);
+
+    return true;
+  }
+
+  // No neighbors: Walk / Scan for first unvisited cell with a visisted neighbor
+  std::vector<Point2D> neighbors;
+
+  for (int i = 0; i < w->GetSize()/2; i ++)
+    for (int j = 0; j < w->GetSize() / 2; j++) {
+      p.x = j;
+      p.y = i;
+
+      if (w->GetNodeColor(p) == Color::DarkGray) {
+        neighbors = getVisitedNeighbors(w*, p);
+
+        if (neighbors.size() != 0) {
+            // Break walls
+            Point2D dir = neighbors.back();
+            Node pNode = w->GetNode(p);
+            Node nNode = w->GetNode(p + dir);
+
+            if (dir == Point2D::UP) {
+                pNode.SetNorth(false);
+                nNode.SetSouth(false);
+            } else if (dir == Point2D::DOWN) {
+                pNode.SetSouth(false);
+                nNode.SetNorth(false);
+            } else if (dir == Point2D::LEFT) {
+                pNode.SetWest(false);
+                nNode.SetEast(false);
+            } else if (dir == Point2D::RIGHT) {
+                pNode.SetEast(false);
+                nNode.SetWest(false);
+            }
+
+            // Add Point to stack to start from there next
+            stack.push_back(p);
+        }
+        return true;
+      }
+    }
+
+  // The End also
   return false;
 }
 void HuntAndKillExample::Clear(World* world) {
@@ -17,6 +131,7 @@ void HuntAndKillExample::Clear(World* world) {
     }
   }
 }
+
 Point2D HuntAndKillExample::randomStartPoint(World* world) {
   // Todo: improve this if you want
   auto sideOver2 = world->GetSize() / 2;
@@ -31,16 +146,47 @@ std::vector<Point2D> HuntAndKillExample::getVisitables(World* w, const Point2D& 
   auto sideOver2 = w->GetSize() / 2;
   std::vector<Point2D> visitables;
 
-  // todo: code this
+   if (pointInWorld(p + p.UP, sideOver2) && w->GetNodeColor(p + p.UP) == Color::DarkGray) visitables.push_back(p + p.UP);
+
+  if (pointInWorld(p + p.RIGHT, sideOver2) && w->GetNodeColor(p + p.RIGHT) == Color::DarkGray) visitables.push_back(p + p.RIGHT);
+
+  if (pointInWorld(p + p.DOWN, sideOver2) && w->GetNodeColor(p + p.DOWN) == Color::DarkGray) visitables.push_back(p + p.DOWN);
+
+  if (pointInWorld(p + p.LEFT, sideOver2) && w->GetNodeColor(p + p.LEFT) == Color::DarkGray) visitables.push_back(p + p.LEFT);
 
   return visitables;
 }
+
+/// <summary>
+/// Used when walking to get the neighbor to break the wall
+/// </summary>
 std::vector<Point2D> HuntAndKillExample::getVisitedNeighbors(World* w, const Point2D& p) {
   std::vector<Point2D> deltas = {{-1, 0}, {0, -1}, {1, 0}, {0, 1}};
   auto sideOver2 = w->GetSize() / 2;
+
+  // First is the Delta, Second is the point
   std::vector<Point2D> neighbors;
 
-  // todo: code this
+  for (int i = 0; i < 3; i++) {
+    if (pointInWorld(p + deltas[i], sideOver2) && w->GetNodeColor(p + deltas[i]) == Color::Black) 
+      neighbors.push_back(deltas[i]);
+  }
 
   return neighbors;
+}
+
+/// <summary>
+/// Added
+/// </summary>
+/// <param name="p">Point to be evaluated</param>
+/// <param name="worldSizeOver2">w->worldSize()/2</param>
+/// <returns>True if the point fits in the World bounds based on size</returns>
+bool HuntAndKillExample::pointInWorld(Point2D p, int worldSizeOver2) {
+  if (p.x > worldSizeOver2) return false;
+  if (p.x < -worldSizeOver2) return false;
+
+  if (p.y > worldSizeOver2) return false;
+  if (p.y < -worldSizeOver2) return false;
+
+  return true;
 }
