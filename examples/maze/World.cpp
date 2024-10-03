@@ -81,6 +81,10 @@ void World::OnGui(ImGuiContext* context) {
   ImGui::SliderFloat("Turn Duration", &timeBetweenAITicks, 0.00, 30);
   ImGui::Text("Next turn in %.1f", timeForNextTick);
 
+  // Added random-ness toggles
+  ImGui::Checkbox("Use Random Nums", &generators[generatorId]->useRandom);
+  ImGui::Checkbox("Center Start", &generators[generatorId]->centerStartPoint);
+
   ImGui::Text("Generator: %s", generators[generatorId]->GetName().c_str());
   if (ImGui::BeginCombo("##combo",
                         generators[generatorId]->GetName().c_str()))  // The second parameter is the label previewed before opening the combo.

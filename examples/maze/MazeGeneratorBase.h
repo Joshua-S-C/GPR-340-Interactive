@@ -19,7 +19,7 @@ public:
 
 #pragma region Added Functions and Vars
 
-    bool randStartPoint = false;
+    bool centerStartPoint = false;
 
     // True = use Xorshift, False = use the numbers you gave us on the website
     bool useRandom = false;

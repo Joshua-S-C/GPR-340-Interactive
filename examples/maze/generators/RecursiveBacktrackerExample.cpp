@@ -11,10 +11,10 @@ bool RecursiveBacktrackerExample::Step(World* w) {
 
     // Starting
     if (stack.empty()) {
-        if (randStartPoint)
-            p = randomStartPoint(w);
-        else
+        if (centerStartPoint)
             p = {0, 0};
+        else
+            p = randomStartPoint(w);
 
         // The End
         if (w->GetNodeColor(p) == Color::Black) return false;
@@ -79,6 +79,9 @@ void RecursiveBacktrackerExample::Clear(World* world) {
   visited.clear();
   stack.clear();
   auto sideOver2 = world->GetSize() / 2;
+  
+  // Added
+  randNumIndex = 0;
 
   for (int i = -sideOver2; i <= sideOver2; i++) {
     for (int j = -sideOver2; j <= sideOver2; j++) {
