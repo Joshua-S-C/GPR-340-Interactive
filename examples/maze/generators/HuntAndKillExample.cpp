@@ -32,25 +32,10 @@ bool HuntAndKillExample::Step(World* w) {
   if (!visitables.empty()) {
     // Select neighbor
     Point2D neighbor;
-
-    if (visitables.size() > 1) {
-      int rando;
-
-      if (useRandom) {
-        prng.shift();
-        rando = prng.a;
-      } else {
-        if (randNumIndex > 99) randNumIndex = 0;
-
-        rando = randNums[randNumIndex];
-        randNumIndex++;
-      }
-
-      rando %= visitables.size();
-      neighbor = visitables[rando];
-    } else {
+    if (visitables.size() > 1)
+      neighbor = visitables[getRandomIndex() % visitables.size()];
+    else
       neighbor = visitables[0];
-    }
 
     // Add to stack
     stack.push_back(neighbor);
@@ -87,8 +72,8 @@ bool HuntAndKillExample::Step(World* w) {
   // No neighbors: Walk / Scan for first unvisited cell with a visisted neighbor
   std::vector<Point2D> neighbors;
 
-  for (int i = -(w->GetSize() / 2); i < w->GetSize() / 2; i++)
-    for (int j = -(w->GetSize() / 2); j < w->GetSize() / 2; j++) {
+  for (int i = -(w->GetSize() / 2); i <= w->GetSize() / 2; i++)
+    for (int j = -(w->GetSize() / 2); j <= w->GetSize() / 2; j++) {
       p.x = j;
       p.y = i;
 
@@ -97,7 +82,7 @@ bool HuntAndKillExample::Step(World* w) {
 
         if (neighbors.size() != 0) {
             // Break walls
-            Point2D dir = neighbors.front();
+          Point2D dir = neighbors[getRandomIndex() % neighbors.size()];
             Node pNode = w->GetNode(p);
             Node nNode = w->GetNode(p + dir);
 
@@ -172,16 +157,15 @@ std::vector<Point2D> HuntAndKillExample::getVisitables(World* w, const Point2D& 
 /// <summary>
 /// Used when walking to get the neighbor to break the wall
 /// </summary>
+/// <returns>The deltas that lead to visited neighbors</returns>
 std::vector<Point2D> HuntAndKillExample::getVisitedNeighbors(World* w, const Point2D& p) {
   std::vector<Point2D> deltas = {{-1, 0}, {0, -1}, {1, 0}, {0, 1}};
   auto sideOver2 = w->GetSize() / 2;
-
-  // First is the Delta, Second is the point
   std::vector<Point2D> neighbors;
 
   for (int i = 0; i < 3; i++) {
-    if (pointInWorld(p + deltas[i], sideOver2) && 
-        (w->GetNodeColor(p + deltas[i]) == Color::Red || w->GetNodeColor(p + deltas[i]) == Color::Black)) 
+    Point2D thePoint = p + deltas[i];
+    if (pointInWorld(p + deltas[i], sideOver2) && w->GetNodeColor(p + deltas[i]) == Color::Black) 
       neighbors.push_back(deltas[i]);
   }
 
