@@ -13,6 +13,9 @@ public:
 
   std::vector<Point2D> generatePath(World* w);
 
+  bool isPointBorder(World* w, Point2D p);
+  bool isValidPoint(World* w, Point2D p);
+
   std::vector<Point2D> getVisitableNeightbors(World* w, Point2D current, const unordered_set<Point2D>* frontierSet);
 };
 
