@@ -7,57 +7,62 @@
 using namespace std;
 
 std::vector<Point2D> Agent::generatePath(World* w) {
-  unordered_map<Point2D, Point2D> cameFrom;  // to build the flowfield and build the path
-  priority_queue<Point2D> frontier;          // to store next ones to visit.
-  unordered_set<Point2D> frontierSet;        // OPTIMIZATION to check faster if a point is in the queue
-  unordered_map<Point2D, bool> visited;      // use .at() to get data, if the element dont exist [] will give you wrong results
+    unordered_map<Point2D, Point2D> cameFrom;  // to build the flowfield and build the path
+    priority_queue<Point2D> frontier;          // to store next ones to visit.
+    unordered_set<Point2D> frontierSet;        // OPTIMIZATION to check faster if a point is in the queue
+    unordered_map<Point2D, bool> visited;      // use .at() to get data, if the element dont exist [] will give you wrong results
 
-  // Bootstrap state
-  auto catPos = w->getCat();
-  frontier.push(catPos);
-  frontierSet.insert(catPos);
-  Point2D borderExit = Point2D::INFINITE;  
-  // if at the end of the loop we dont find a border, we have to return random points
+    // Bootstrap state
+    auto catPos = w->getCat();
+    frontier.push(catPos);
+    frontierSet.insert(catPos);
+    Point2D borderExit = Point2D::INFINITE;   // if at the end of the loop we dont find a border, we have to return random points
 
-  while (!frontier.empty()) {
-    // Get the current from frontier
-    Point2D current = frontier.top();
-    frontier.pop();
+    while (!frontier.empty()) {
+        // Get the current from frontier
+        Point2D current = frontier.top();
+        frontier.pop();
 
-    // Remove the current from frontierset
-    frontierSet.find(current);
+        // Remove the current from frontierset
+        frontierSet.erase(current);
 
-    // Mark current as visited
-    visited[current] = true;
+        // Mark current as visited
+        visited[current] = true;
 
-    std::vector<Point2D> visitables = getVisitableNeightbors(w, current, &frontierSet);
+        // Iterate over the neighs: for every neighbor set the cameFrom
+        std::vector<Point2D> visitables = getVisitableNeightbors(w, current, &frontierSet);
+        for (Point2D neighbor : visitables) {
 
-    // Iterate over the neighs: for every neighbor set the cameFrom
-    for (Point2D neighbor : visitables) {
-
-        cameFrom[neighbor] = current;
+            cameFrom[neighbor] = current;
         
-        // Enqueue the neighbors to frontier and frontierset
-        frontier.push(neighbor);
-        frontierSet.insert(neighbor);
+            // Enqueue the neighbors to frontier and frontierset
+            frontier.push(neighbor);
+            frontierSet.insert(neighbor);
 
-        // Break when found a visitable border
-        if (isPointBorder(w, neighbor)) {
-            break;
+            // Break when found a visitable border
+            if (isPointBorder(w, neighbor)) {
+                borderExit = neighbor;
+                break;
+            }
         }
+
     }
 
-  }
+    // If there isnt a reachable border, just return empty vector
+    if (borderExit == Point2D::INFINITE))
+        return vector<Point2D>();
 
-  // If there isnt a reachable border, just return empty vector
-  if (!isPointBorder(w, frontierSet.begin())) // Make this correct tho
-    return vector<Point2D>();
+    // If the border is not infinity, build the path from border to the cat using the camefrom map
+    std::vector<Point2D> path;
+    path.push_back(borderExit);
+    Point2D current = cameFrom[borderExit];
 
-  // If the border is not infinity, build the path from border to the cat using the camefrom map
+    while (cameFrom[current] != null) {
+        path.push_back(current);
+        current = cameFrom[current];
+    }
 
-
-
-  // If your vector is filled from the border to the cat, the first element is the catcher move, and the last element is the cat move
+    // If your vector is filled from the border to the cat, the first element is the catcher move, and the last element is the cat move
 }
 
 /// <returns>True if point is on the border</returns>
@@ -65,9 +70,9 @@ bool Agent::isPointBorder(World* w, Point2D p) { return (p.x == w->getWorldSideS
 
 /// <returns>True if the point is not a wall or the cat</returns>
 bool Agent::isValidPoint(World* w, Point2D p) {
-  Point2D catPos = w->getCat();
+    Point2D catPos = w->getCat();
 
-  return !w->getContent(p) && catPos != p;
+    return !w->getContent(p) && catPos != p;
 }
 
 /// <summary>
