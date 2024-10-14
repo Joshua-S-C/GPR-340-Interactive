@@ -24,13 +24,13 @@ std::vector<Point2D> Agent::generatePath(World* w) {
         frontier.pop();
 
         // Remove the current from frontierset
-        frontierSet.erase(current);
+        //frontierSet.erase(current);
 
         // Mark current as visited
         visited[current] = true;
 
         // Iterate over the neighs: for every neighbor set the cameFrom
-        std::vector<Point2D> visitables = getVisitableNeightbors(w, current, &frontierSet);
+        std::vector<Point2D> visitables = getVisitableNeightbors(w, current, frontierSet);
         for (Point2D neighbor : visitables) {
 
             cameFrom[neighbor] = current;
@@ -49,7 +49,7 @@ std::vector<Point2D> Agent::generatePath(World* w) {
     }
 
     // If there isnt a reachable border, just return empty vector
-    if (borderExit == Point2D::INFINITE))
+    if (borderExit == Point2D::INFINITE)
         return vector<Point2D>();
 
     // If the border is not infinity, build the path from border to the cat using the camefrom map
@@ -57,16 +57,19 @@ std::vector<Point2D> Agent::generatePath(World* w) {
     path.push_back(borderExit);
     Point2D current = cameFrom[borderExit];
 
-    while (cameFrom[current] != null) {
+    while (cameFrom.find(current) != cameFrom.end()) {
         path.push_back(current);
         current = cameFrom[current];
     }
 
     // If your vector is filled from the border to the cat, the first element is the catcher move, and the last element is the cat move
+    return path;
 }
 
 /// <returns>True if point is on the border</returns>
-bool Agent::isPointBorder(World* w, Point2D p) { return (p.x == w->getWorldSideSize() / 2 && p.y == w->getWorldSideSize() / 2); }
+bool Agent::isPointBorder(World* w, Point2D p) { 
+    return (p.x == w->getWorldSideSize() / 2 && p.y == w->getWorldSideSize() / 2); 
+}
 
 /// <returns>True if the point is not a wall or the cat</returns>
 bool Agent::isValidPoint(World* w, Point2D p) {
@@ -79,12 +82,12 @@ bool Agent::isValidPoint(World* w, Point2D p) {
 /// Valid neighbors: not visited, not the cat, not the block, not in the queue
 /// </summary>
 /// <returns>Vector of valid neighbors</returns>
-std::vector<Point2D> Agent::getVisitableNeightbors(World* w, Point2D p, const unordered_set<Point2D>* frontierSet) { 
+std::vector<Point2D> Agent::getVisitableNeightbors(World* w, Point2D p, unordered_set<Point2D> frontierSet) { 
     std::vector<Point2D> visitables;
     Point2D directions[6] = {World::NE(p), World::NW(p), World::E(p), World::W(p), World::SE(p), World::SW(p)};
 
     for (Point2D neighbor : directions) {
-        if (frontierSet->contains(neighbor) || !isValidPoint(w, p)) 
+        if (frontierSet.contains(neighbor) || !isValidPoint(w, p)) 
             continue;
 
         visitables.push_back(neighbor);

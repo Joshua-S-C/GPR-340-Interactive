@@ -16,6 +16,9 @@ public:
   Point2D operator-(const Point2D& rhs) const;
   Point2D& operator-=(const Point2D& rhs);
 
+  // Added
+  bool operator<(const Point2D& rhs) const;
+
   inline Point2D Up() const { return *this + UP; };
   inline Point2D Left() const { return *this + LEFT; };
   inline Point2D Right() const { return *this + RIGHT; };
