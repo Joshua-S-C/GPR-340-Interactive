@@ -37,7 +37,7 @@ std::vector<Point2D> Agent::generatePath(World* w) {
         
             // Enqueue the neighbors to frontier and frontierset
             frontier.push(neighbor);
-            frontierSet.insert(neighbor);
+            frontierSet.insert(neighbor);   // Fixed: Invalid comparator
 
             // Break when found a visitable border
             if (isPointBorder(w, neighbor)) {
@@ -87,7 +87,7 @@ std::vector<Point2D> Agent::getVisitableNeightbors(World* w, Point2D p, unordere
     Point2D directions[6] = {World::NE(p), World::NW(p), World::E(p), World::W(p), World::SE(p), World::SW(p)};
 
     for (Point2D neighbor : directions) {
-        if (frontierSet.contains(neighbor) || !isValidPoint(w, p)) 
+        if (frontierSet.contains(neighbor) || !isValidPoint(w, neighbor)) 
             continue;
 
         visitables.push_back(neighbor);

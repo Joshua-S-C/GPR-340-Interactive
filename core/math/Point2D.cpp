@@ -11,7 +11,7 @@ bool Point2D::operator==(const Point2D& rhs) const { return y == rhs.y && x == r
 
 bool Point2D::operator!=(const Point2D& rhs) const { return x != rhs.x || y != rhs.y; }
 
-bool Point2D::operator<(const Point2D& rhs) const { return (x < rhs.x) || (y < rhs.y); }
+bool Point2D::operator<(const Point2D& rhs) const { return x < rhs.x; }
 
 Point2D& Point2D::operator=(const Point2D& rhs) {
   // Check for self-assignment
