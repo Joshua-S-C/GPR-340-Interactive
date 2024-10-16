@@ -23,9 +23,6 @@ std::vector<Point2D> Agent::generatePath(World* w) {
         Point2D current = frontier.top();
         frontier.pop();
 
-        // Remove the current from frontierset
-        //frontierSet.erase(current);
-
         // Mark current as visited
         visited[current] = true;
 
@@ -37,7 +34,7 @@ std::vector<Point2D> Agent::generatePath(World* w) {
         
             // Enqueue the neighbors to frontier and frontierset
             frontier.push(neighbor);
-            frontierSet.insert(neighbor);   // Fixed: Invalid comparator
+            frontierSet.insert(neighbor);
 
             // Break when found a visitable border
             if (isPointBorder(w, neighbor)) borderExit = neighbor;
@@ -73,9 +70,7 @@ bool Agent::isPointBorder(World* w, Point2D p) {
 
 /// <returns>True if the point is not a wall or the cat</returns>
 bool Agent::isValidPoint(World* w, Point2D p) {
-    Point2D catPos = w->getCat();
-
-    return !w->getContent(p) && catPos != p;
+    return !w->getContent(p) && w->getCat() != p;
 }
 
 /// <summary>
