@@ -18,7 +18,7 @@ std::vector<Point2D> Agent::generatePath(World* w) {
     frontierSet.insert(catPos);
     Point2D borderExit = Point2D::INFINITE;   // if at the end of the loop we dont find a border, we have to return random points
 
-    while (!frontier.empty()) {
+    while (!frontier.empty() && borderExit == Point2D::INFINITE) {
         // Get the current from frontier
         Point2D current = frontier.top();
         frontier.pop();
@@ -31,8 +31,8 @@ std::vector<Point2D> Agent::generatePath(World* w) {
 
         // Iterate over the neighs: for every neighbor set the cameFrom
         std::vector<Point2D> visitables = getVisitableNeightbors(w, current, frontierSet);
-        for (Point2D neighbor : visitables) {
 
+        for (Point2D neighbor : visitables) {
             cameFrom[neighbor] = current;
         
             // Enqueue the neighbors to frontier and frontierset
@@ -40,10 +40,7 @@ std::vector<Point2D> Agent::generatePath(World* w) {
             frontierSet.insert(neighbor);   // Fixed: Invalid comparator
 
             // Break when found a visitable border
-            if (isPointBorder(w, neighbor)) {
-                borderExit = neighbor;
-                break;
-            }
+            if (isPointBorder(w, neighbor)) borderExit = neighbor;
         }
 
     }
@@ -54,21 +51,24 @@ std::vector<Point2D> Agent::generatePath(World* w) {
 
     // If the border is not infinity, build the path from border to the cat using the camefrom map
     std::vector<Point2D> path;
-    path.push_back(borderExit);
-    Point2D current = cameFrom[borderExit];
+    Point2D current = borderExit;
 
-    while (cameFrom.find(current) != cameFrom.end()) {
+    do {
         path.push_back(current);
         current = cameFrom[current];
-    }
+    } while (current != catPos);
 
     // If your vector is filled from the border to the cat, the first element is the catcher move, and the last element is the cat move
     return path;
 }
 
+#pragma region Helpers
+
 /// <returns>True if point is on the border</returns>
 bool Agent::isPointBorder(World* w, Point2D p) { 
-    return (p.x == w->getWorldSideSize() / 2 && p.y == w->getWorldSideSize() / 2); 
+    return (
+        abs(p.x) == w->getWorldSideSize() / 2 || 
+        abs(p.y) == w->getWorldSideSize() / 2); 
 }
 
 /// <returns>True if the point is not a wall or the cat</returns>
@@ -96,6 +96,7 @@ std::vector<Point2D> Agent::getVisitableNeightbors(World* w, Point2D p, unordere
     return visitables; 
 }
 
+#pragma endregion
 
 
 // Add Manhattan distance function for heuristics

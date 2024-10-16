@@ -7,6 +7,7 @@ class Catcher : public Agent {
 public:
   explicit Catcher() : Agent(){};
   Point2D Move(World*) override;
+  Point2D MoveRandom(World*);
 };
 
 #endif  // CATCHER_H

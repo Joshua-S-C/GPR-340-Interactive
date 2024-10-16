@@ -7,7 +7,7 @@ Point2D Cat::Move(World* world) {
     
     if (path.empty()) return MoveRandom(world);
 
-    return path.front();
+    return path.back();
 }
 
 Point2D Cat::MoveRandom(World* world) { 
