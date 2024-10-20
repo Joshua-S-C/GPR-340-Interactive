@@ -14,6 +14,8 @@ public:
 
   std::vector<Point2D> generatePath(World* w);
 
+  int getHeuristic(Point2D p, int sideSize);
+
   static bool isPointBorder(World* w, Point2D p);
   static bool isValidPoint(World* w, Point2D p);
 

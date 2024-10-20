@@ -18,6 +18,10 @@ public:
 
   // Added
   bool operator<(const Point2D& rhs) const;
+  // From Tolstenko
+  int manhattanDistanceTo(const Point2D& other) const { 
+      return abs(x - other.x) + abs(y - other.y);
+  }
 
   inline Point2D Up() const { return *this + UP; };
   inline Point2D Left() const { return *this + LEFT; };

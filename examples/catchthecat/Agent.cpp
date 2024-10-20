@@ -6,41 +6,73 @@
 
 using namespace std;
 
+// From Tolstenko
+struct AStarNode {
+  Point2D point;
+  int accDist;
+  int heuristicDist;
+
+  /// <summary>
+  /// Overloaded to use with priority queue
+  /// Takes into account bpth Euclidean Distnace & Heuristic Distance
+  /// </summary>
+  bool operator<(const AStarNode& rhs) const { return accDist + heuristicDist > rhs.accDist + rhs.heuristicDist; }
+};
+
+#define DEBUG
+
 std::vector<Point2D> Agent::generatePath(World* w) {
     unordered_map<Point2D, Point2D> cameFrom;  // to build the flowfield and build the path
-    priority_queue<Point2D> frontier;          // to store next ones to visit.
+    priority_queue<AStarNode> frontier;          // to store next ones to visit.
     unordered_set<Point2D> frontierSet;        // OPTIMIZATION to check faster if a point is in the queue
     unordered_map<Point2D, bool> visited;      // use .at() to get data, if the element dont exist [] will give you wrong results
 
     // Bootstrap state
-    auto catPos = w->getCat();
-    frontier.push(catPos);
+    Point2D catPos = w->getCat();
+    frontier.push({catPos, 0, 0});
     frontierSet.insert(catPos);
     Point2D borderExit = Point2D::INFINITE;   // if at the end of the loop we dont find a border, we have to return random points
 
+    #ifdef DEBUG
+    int nodesSearched = 1;
+    #endif  // DEBUG
+
     while (!frontier.empty() && borderExit == Point2D::INFINITE) {
         // Get the current from frontier
-        Point2D current = frontier.top();
+        AStarNode current = frontier.top();
         frontier.pop();
 
         // Mark current as visited
-        visited[current] = true;
+        visited[current.point] = true;
 
         // Iterate over the neighs: for every neighbor set the cameFrom
-        std::vector<Point2D> visitables = getVisitableNeightbors(w, current, frontierSet);
+        std::vector<Point2D> visitables = getVisitableNeightbors(w, current.point, frontierSet);
 
         for (Point2D neighbor : visitables) {
-            cameFrom[neighbor] = current;
+            #ifdef DEBUG
+            nodesSearched++;
+            #endif  // DEBUG
+
+            cameFrom[neighbor] = current.point;
         
             // Enqueue the neighbors to frontier and frontierset
-            frontier.push(neighbor);
+            frontier.push({
+                neighbor, 
+                current.accDist + 1, 
+                getHeuristic(neighbor, w->getWorldSideSize())
+            });
+
             frontierSet.insert(neighbor);
 
             // Break when found a visitable border
             if (isPointBorder(w, neighbor)) borderExit = neighbor;
         }
-
     }
+
+    
+    #ifdef DEBUG
+    cout << nodesSearched << endl;
+    #endif  // DEBUG
 
     // If there isnt a reachable border, just return empty vector
     if (borderExit == Point2D::INFINITE)
@@ -60,6 +92,31 @@ std::vector<Point2D> Agent::generatePath(World* w) {
 }
 
 #pragma region Helpers
+
+/// <summary>
+/// Use to set the Heuristic Distance in A* Node
+/// From Tolstenko
+/// </summary>
+/// <param name="p">The point of the node being set</param>
+/// <param name="sideSize">w-getSideSize()</param>
+/// <returns>A*Node.heuristicDist</returns>
+int Agent::getHeuristic(Point2D p, int sideSize) {
+    // Right Side
+    if (p.x - p.y > 0 && p.x + p.y > 0)
+        return (sideSize / 2) - p.x;
+
+    // Left Side
+    if (p.x - p.y < 0 && p.x + p.y < 0)
+        return (sideSize / 2) + p.x;
+
+    // Down
+    if (p.y - p.x > 0 && p.y + p.x > 0) 
+        return (sideSize / 2) - p.y;
+
+    // Up
+    if (p.y - p.x < 0 && p.y + p.x < 0) 
+        return (sideSize / 2) + p.y;
+}
 
 /// <returns>True if point is on the border</returns>
 bool Agent::isPointBorder(World* w, Point2D p) { 
@@ -92,6 +149,3 @@ std::vector<Point2D> Agent::getVisitableNeightbors(World* w, Point2D p, unordere
 }
 
 #pragma endregion
-
-
-// Add Manhattan distance function for heuristics
